@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Optional, Sequence
 import traceback
 
 from mcp.server import Server
-from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolRequest,
@@ -781,11 +780,6 @@ class MCPSSHServer:
                 await self.server.run(
                     read_stream,
                     write_stream,
-                    InitializationOptions(
-                        server_name="mcp-ssh-server",
-                        server_version="1.0.0",
-                        capabilities={}
-                    )
                 )
         except KeyboardInterrupt:
             self.logger.info("Server interrupted by user")
