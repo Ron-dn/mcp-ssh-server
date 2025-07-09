@@ -784,16 +784,15 @@ class MCPSSHServer:
                     InitializationOptions(
                         server_name="mcp-ssh-server",
                         server_version="1.0.0",
-                        capabilities=self.server.get_capabilities(
-                            notification_options=None,
-                            experimental_capabilities=None
-                        )
+                        capabilities={}
                     )
                 )
         except KeyboardInterrupt:
             self.logger.info("Server interrupted by user")
         except Exception as e:
             self.logger.error(f"Server error: {e}")
+            import traceback
+            traceback.print_exc()
         finally:
             # Clean up all connections
             self.ssh_manager.cleanup_all_connections()
