@@ -62,8 +62,9 @@ class MCPSSHServer:
         @self.server.list_tools()
         async def list_tools() -> ListToolsResult:
             """List available SSH tools."""
-            return ListToolsResult(
-                tools=[
+            try:
+                # Return all 13 SSH tools with proper schema
+                tools = [
                     # Connection Management Tools
                     Tool(
                         name="mcp_ssh_connect",
@@ -71,32 +72,12 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "host": {
-                                    "type": "string",
-                                    "description": "Remote host IP address or hostname"
-                                },
-                                "username": {
-                                    "type": "string",
-                                    "description": "SSH username"
-                                },
-                                "password": {
-                                    "type": "string",
-                                    "description": "SSH password (optional if using key)"
-                                },
-                                "private_key": {
-                                    "type": "string",
-                                    "description": "SSH private key content (optional)"
-                                },
-                                "port": {
-                                    "type": "integer",
-                                    "default": 22,
-                                    "description": "SSH port number"
-                                },
-                                "timeout": {
-                                    "type": "number",
-                                    "default": 30.0,
-                                    "description": "Connection timeout in seconds"
-                                }
+                                "host": {"type": "string", "description": "Remote host IP address or hostname"},
+                                "username": {"type": "string", "description": "SSH username"},
+                                "password": {"type": "string", "description": "SSH password (optional if using key)"},
+                                "private_key": {"type": "string", "description": "SSH private key content (optional)"},
+                                "port": {"type": "integer", "description": "SSH port number"},
+                                "timeout": {"type": "number", "description": "Connection timeout in seconds"}
                             },
                             "required": ["host", "username"]
                         }
@@ -107,10 +88,7 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "Connection ID to close"
-                                }
+                                "connection_id": {"type": "string", "description": "Connection ID to close"}
                             },
                             "required": ["connection_id"]
                         }
@@ -121,10 +99,7 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "random_string": {
-                                    "type": "string",
-                                    "description": "Dummy parameter for no-parameter tools"
-                                }
+                                "random_string": {"type": "string", "description": "Dummy parameter for no-parameter tools"}
                             },
                             "required": ["random_string"]
                         }
@@ -135,45 +110,22 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "Connection ID to test"
-                                }
+                                "connection_id": {"type": "string", "description": "Connection ID to test"}
                             },
                             "required": ["connection_id"]
                         }
                     ),
-                    
-                    # Command Execution Tools
                     Tool(
                         name="mcp_ssh_execute",
                         description="Execute single command on remote host",
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "command": {
-                                    "type": "string",
-                                    "description": "Command to execute"
-                                },
-                                "timeout": {
-                                    "type": "number",
-                                    "default": 30.0,
-                                    "description": "Command timeout in seconds"
-                                },
-                                "show_output": {
-                                    "type": "boolean",
-                                    "default": True,
-                                    "description": "Whether to return command output"
-                                },
-                                "return_exit_code": {
-                                    "type": "boolean",
-                                    "default": False,
-                                    "description": "Include exit code in response"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "command": {"type": "string", "description": "Command to execute"},
+                                "timeout": {"type": "number", "description": "Command timeout in seconds"},
+                                "show_output": {"type": "boolean", "description": "Whether to return command output"},
+                                "return_exit_code": {"type": "boolean", "description": "Include exit code in response"}
                             },
                             "required": ["connection_id", "command"]
                         }
@@ -184,29 +136,11 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "command": {
-                                    "type": "string",
-                                    "description": "Command to execute"
-                                },
-                                "expect_prompts": {
-                                    "type": "array",
-                                    "items": {"type": "string"},
-                                    "description": "List of expected prompt patterns"
-                                },
-                                "responses": {
-                                    "type": "array",
-                                    "items": {"type": "string"},
-                                    "description": "List of responses to prompts"
-                                },
-                                "timeout": {
-                                    "type": "number",
-                                    "default": 30.0,
-                                    "description": "Command timeout in seconds"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "command": {"type": "string", "description": "Command to execute"},
+                                "expect_prompts": {"type": "array", "items": {"type": "string"}, "description": "List of expected prompt patterns"},
+                                "responses": {"type": "array", "items": {"type": "string"}, "description": "List of responses to prompts"},
+                                "timeout": {"type": "number", "description": "Command timeout in seconds"}
                             },
                             "required": ["connection_id", "command", "expect_prompts", "responses"]
                         }
@@ -217,54 +151,24 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "commands": {
-                                    "type": "array",
-                                    "items": {"type": "string"},
-                                    "description": "List of commands to execute"
-                                },
-                                "stop_on_error": {
-                                    "type": "boolean",
-                                    "default": True,
-                                    "description": "Stop execution if command fails"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "commands": {"type": "array", "items": {"type": "string"}, "description": "List of commands to execute"},
+                                "stop_on_error": {"type": "boolean", "description": "Stop execution if command fails"}
                             },
                             "required": ["connection_id", "commands"]
                         }
                     ),
-                    
-                    # File Operation Tools
                     Tool(
                         name="mcp_ssh_upload",
                         description="Upload file or directory to remote host",
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "local_path": {
-                                    "type": "string",
-                                    "description": "Local file/directory path"
-                                },
-                                "remote_path": {
-                                    "type": "string",
-                                    "description": "Remote destination path"
-                                },
-                                "recursive": {
-                                    "type": "boolean",
-                                    "default": False,
-                                    "description": "Upload directories recursively"
-                                },
-                                "preserve_permissions": {
-                                    "type": "boolean",
-                                    "default": True,
-                                    "description": "Preserve file permissions"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "local_path": {"type": "string", "description": "Local file/directory path"},
+                                "remote_path": {"type": "string", "description": "Remote destination path"},
+                                "recursive": {"type": "boolean", "description": "Upload directories recursively"},
+                                "preserve_permissions": {"type": "boolean", "description": "Preserve file permissions"}
                             },
                             "required": ["connection_id", "local_path", "remote_path"]
                         }
@@ -275,23 +179,10 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "remote_path": {
-                                    "type": "string",
-                                    "description": "Remote file/directory path"
-                                },
-                                "local_path": {
-                                    "type": "string",
-                                    "description": "Local destination path"
-                                },
-                                "recursive": {
-                                    "type": "boolean",
-                                    "default": False,
-                                    "description": "Download directories recursively"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "remote_path": {"type": "string", "description": "Remote file/directory path"},
+                                "local_path": {"type": "string", "description": "Local destination path"},
+                                "recursive": {"type": "boolean", "description": "Download directories recursively"}
                             },
                             "required": ["connection_id", "remote_path", "local_path"]
                         }
@@ -302,40 +193,21 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "remote_path": {
-                                    "type": "string",
-                                    "default": ".",
-                                    "description": "Remote directory path"
-                                },
-                                "detailed": {
-                                    "type": "boolean",
-                                    "default": True,
-                                    "description": "Show detailed file information"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "remote_path": {"type": "string", "description": "Remote directory path"},
+                                "detailed": {"type": "boolean", "description": "Show detailed file information"}
                             },
                             "required": ["connection_id"]
                         }
                     ),
-                    
-                    # Utility Tools
                     Tool(
                         name="mcp_ssh_check_file_exists",
                         description="Check if file or directory exists on remote host",
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "remote_path": {
-                                    "type": "string",
-                                    "description": "Remote file/directory path"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "remote_path": {"type": "string", "description": "Remote file/directory path"}
                             },
                             "required": ["connection_id", "remote_path"]
                         }
@@ -346,10 +218,7 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"}
                             },
                             "required": ["connection_id"]
                         }
@@ -360,21 +229,24 @@ class MCPSSHServer:
                         inputSchema={
                             "type": "object",
                             "properties": {
-                                "connection_id": {
-                                    "type": "string",
-                                    "description": "SSH connection ID"
-                                },
-                                "limit": {
-                                    "type": "integer",
-                                    "default": 50,
-                                    "description": "Number of recent commands to return"
-                                }
+                                "connection_id": {"type": "string", "description": "SSH connection ID"},
+                                "limit": {"type": "integer", "description": "Number of recent commands to return"}
                             },
                             "required": ["connection_id"]
                         }
                     ),
                 ]
-            )
+                
+                self.logger.info(f"Successfully created {len(tools)} SSH tools")
+                
+                # Return the tools using the correct constructor
+                return ListToolsResult(tools=tools)
+                
+            except Exception as e:
+                self.logger.error(f"Error in list_tools: {e}")
+                import traceback
+                traceback.print_exc()
+                raise
         
         @self.server.call_tool()
         async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
