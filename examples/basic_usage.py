@@ -1,155 +1,216 @@
 #!/usr/bin/env python3
 """
-Basic usage example for MCP SSH Server.
+Basic Usage Examples for MCP SSH Server
 
-This example demonstrates how to use the MCP SSH server for common tasks
-like connecting to a server, executing commands, and managing files.
+This module demonstrates the fundamental operations available through the MCP SSH server.
+All examples use generic hostnames and credentials for demonstration purposes.
 """
 
-import asyncio
 import json
-from mcp.client.stdio import stdio_client
-from mcp.types import CallToolRequest
 
 
-async def basic_ssh_example():
-    """Basic SSH operations example."""
+def main():
+    """
+    Basic examples of MCP SSH server usage.
+    These examples show the core functionality for SSH operations.
+    """
     
-    # Connect to MCP SSH server
-    async with stdio_client() as (read, write):
-        # Initialize the client
-        result = await read()
-        print("Connected to MCP SSH Server")
-        
-        # Example 1: Connect to SSH server
-        print("\n=== Example 1: SSH Connection ===")
-        connect_request = CallToolRequest(
-            method="tools/call",
-            params={
-                "name": "mcp_ssh_connect",
-                "arguments": {
-                    "host": "192.168.1.100",
-                    "username": "admin",
-                    "password": "your_password"
-                }
-            }
-        )
-        
-        # Note: In real usage, this would be handled by the MCP client
-        print("Connect request:", json.dumps(connect_request.dict(), indent=2))
-        
-        # Example connection response
-        connection_id = "ssh_abc123_192.168.1.100_admin"
-        print(f"Connection established: {connection_id}")
-        
-        # Example 2: Execute simple command
-        print("\n=== Example 2: Execute Command ===")
-        execute_request = {
-            "name": "mcp_ssh_execute",
-            "arguments": {
-                "connection_id": connection_id,
-                "command": "ls -la /home",
-                "show_output": True
-            }
+    print("🔧 MCP SSH Server - Basic Usage Examples\n")
+    print("=" * 50)
+    
+    # Example 1: Basic connection
+    print("1. Basic SSH Connection:")
+    connection_request = {
+        "tool": "mcp_ssh_connect",
+        "arguments": {
+            "host": "server.example.com",
+            "username": "user",
+            "password": "your_password_here",
+            "port": 22,
+            "timeout": 30
         }
-        print("Execute request:", json.dumps(execute_request, indent=2))
-        
-        # Example 3: Upload file
-        print("\n=== Example 3: Upload File ===")
-        upload_request = {
-            "name": "mcp_ssh_upload",
-            "arguments": {
-                "connection_id": connection_id,
-                "local_path": "./config.txt",
-                "remote_path": "/tmp/config.txt"
-            }
+    }
+    print(json.dumps(connection_request, indent=2))
+    
+    # Simulated response
+    connection_id = "ssh_abc123_server.example.com_user"
+    print(f"✓ Connected with ID: {connection_id}\n")
+    
+    # Example 2: Execute single command
+    print("2. Execute Single Command:")
+    single_command = {
+        "tool": "mcp_ssh_execute",
+        "arguments": {
+            "connection_id": connection_id,
+            "command": "ls -la /home/user",
+            "timeout": 10
         }
-        print("Upload request:", json.dumps(upload_request, indent=2))
-        
-        # Example 4: List directory
-        print("\n=== Example 4: List Directory ===")
-        list_request = {
-            "name": "mcp_ssh_list_directory",
-            "arguments": {
-                "connection_id": connection_id,
-                "remote_path": "/tmp",
-                "detailed": True
-            }
+    }
+    print(json.dumps(single_command, indent=2))
+    print("✓ Command executed\n")
+    
+    # Example 3: Execute multiple commands
+    print("3. Execute Multiple Commands:")
+    multi_commands = {
+        "tool": "mcp_ssh_execute_multi",
+        "arguments": {
+            "connection_id": connection_id,
+            "commands": [
+                "whoami",
+                "pwd",
+                "date",
+                "uptime"
+            ],
+            "timeout": 15
         }
-        print("List request:", json.dumps(list_request, indent=2))
-        
-        # Example 5: Get system info
-        print("\n=== Example 5: System Information ===")
-        sysinfo_request = {
-            "name": "mcp_ssh_get_system_info",
-            "arguments": {
-                "connection_id": connection_id
-            }
+    }
+    print(json.dumps(multi_commands, indent=2))
+    print("✓ Multiple commands executed\n")
+    
+    # Example 4: Interactive command execution
+    print("4. Interactive Command Execution:")
+    interactive_command = {
+        "tool": "mcp_ssh_execute_interactive",
+        "arguments": {
+            "connection_id": connection_id,
+            "command": "sudo systemctl status nginx",
+            "expect_patterns": ["password", "Active:", "inactive"],
+            "timeout": 20
         }
-        print("System info request:", json.dumps(sysinfo_request, indent=2))
-        
-        # Example 6: Disconnect
-        print("\n=== Example 6: Disconnect ===")
-        disconnect_request = {
-            "name": "mcp_ssh_disconnect",
-            "arguments": {
-                "connection_id": connection_id
-            }
+    }
+    print(json.dumps(interactive_command, indent=2))
+    print("✓ Interactive command executed\n")
+    
+    # Example 5: File upload
+    print("5. Upload File:")
+    upload_file = {
+        "tool": "mcp_ssh_upload",
+        "arguments": {
+            "connection_id": connection_id,
+            "local_path": "/local/path/config.txt",
+            "remote_path": "/remote/path/config.txt",
+            "recursive": False
         }
-        print("Disconnect request:", json.dumps(disconnect_request, indent=2))
-
-
-def direct_usage_example():
-    """Direct usage example without MCP client."""
-    print("=== Direct Usage Example ===")
-    print("""
-# This is how you would use the MCP SSH server directly:
-
-from mcp_ssh_server import MCPSSHServer
-
-# Create server instance
-server = MCPSSHServer()
-
-# Connect to SSH host
-connection_id = server.ssh_manager.create_connection(
-    host="192.168.1.100",
-    username="admin",
-    password="your_password"
-)
-
-# Execute command
-result = server.ssh_manager.execute_command(
-    connection_id=connection_id,
-    command="ls -la"
-)
-print("Command output:", result.stdout)
-
-# Upload file
-server.ssh_manager.upload_file(
-    connection_id=connection_id,
-    local_path="./file.txt",
-    remote_path="/tmp/file.txt"
-)
-
-# Download file
-server.ssh_manager.download_file(
-    connection_id=connection_id,
-    remote_path="/tmp/file.txt",
-    local_path="./downloaded_file.txt"
-)
-
-# Disconnect
-server.ssh_manager.disconnect(connection_id)
-""")
+    }
+    print(json.dumps(upload_file, indent=2))
+    print("✓ File uploaded\n")
+    
+    # Example 6: Directory upload (recursive)
+    print("6. Upload Directory (Recursive):")
+    upload_directory = {
+        "tool": "mcp_ssh_upload",
+        "arguments": {
+            "connection_id": connection_id,
+            "local_path": "/local/project",
+            "remote_path": "/remote/project",
+            "recursive": True
+        }
+    }
+    print(json.dumps(upload_directory, indent=2))
+    print("✓ Directory uploaded\n")
+    
+    # Example 7: File download
+    print("7. Download File:")
+    download_file = {
+        "tool": "mcp_ssh_download",
+        "arguments": {
+            "connection_id": connection_id,
+            "remote_path": "/var/log/application.log",
+            "local_path": "/local/logs/application.log",
+            "recursive": False
+        }
+    }
+    print(json.dumps(download_file, indent=2))
+    print("✓ File downloaded\n")
+    
+    # Example 8: List remote directory
+    print("8. List Remote Directory:")
+    list_directory = {
+        "tool": "mcp_ssh_list_directory",
+        "arguments": {
+            "connection_id": connection_id,
+            "path": "/home/user",
+            "detailed": True
+        }
+    }
+    print(json.dumps(list_directory, indent=2))
+    print("✓ Directory listed\n")
+    
+    # Example 9: Check if file exists
+    print("9. Check File Existence:")
+    check_file = {
+        "tool": "mcp_ssh_check_file_exists",
+        "arguments": {
+            "connection_id": connection_id,
+            "path": "/etc/nginx/nginx.conf"
+        }
+    }
+    print(json.dumps(check_file, indent=2))
+    print("✓ File existence checked\n")
+    
+    # Example 10: Get system information
+    print("10. Get System Information:")
+    system_info = {
+        "tool": "mcp_ssh_get_system_info",
+        "arguments": {
+            "connection_id": connection_id
+        }
+    }
+    print(json.dumps(system_info, indent=2))
+    print("✓ System information retrieved\n")
+    
+    # Example 11: Get command history
+    print("11. Get Command History:")
+    command_history = {
+        "tool": "mcp_ssh_get_command_history",
+        "arguments": {
+            "connection_id": connection_id,
+            "limit": 10
+        }
+    }
+    print(json.dumps(command_history, indent=2))
+    print("✓ Command history retrieved\n")
+    
+    # Example 12: Test connection health
+    print("12. Test Connection Health:")
+    test_connection = {
+        "tool": "mcp_ssh_test_connection",
+        "arguments": {
+            "connection_id": connection_id
+        }
+    }
+    print(json.dumps(test_connection, indent=2))
+    print("✓ Connection tested\n")
+    
+    # Example 13: List all connections
+    print("13. List All Active Connections:")
+    list_connections = {
+        "tool": "mcp_ssh_list_connections",
+        "arguments": {}
+    }
+    print(json.dumps(list_connections, indent=2))
+    print("✓ Active connections listed\n")
+    
+    # Example 14: Disconnect
+    print("14. Disconnect from Server:")
+    disconnect = {
+        "tool": "mcp_ssh_disconnect",
+        "arguments": {
+            "connection_id": connection_id
+        }
+    }
+    print(json.dumps(disconnect, indent=2))
+    print("✓ Disconnected\n")
+    
+    print("=" * 50)
+    print("🎯 Basic Usage Examples Complete!")
+    print("\nThese examples demonstrate:")
+    print("• SSH connection management")
+    print("• Command execution (single, multiple, interactive)")
+    print("• File and directory operations")
+    print("• System information gathering")
+    print("• Connection health monitoring")
 
 
 if __name__ == "__main__":
-    print("MCP SSH Server - Basic Usage Examples")
-    print("=" * 50)
-    
-    # Show direct usage
-    direct_usage_example()
-    
-    # Show MCP client usage
-    print("\n" + "=" * 50)
-    asyncio.run(basic_ssh_example()) 
+    main() 

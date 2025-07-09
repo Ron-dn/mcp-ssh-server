@@ -82,7 +82,7 @@ mcp-ssh-server
 ```python
 # Connect to server
 conn_id = mcp_ssh_connect(
-    host="192.168.1.100",
+    host="server.example.com",
     username="admin",
     password="your_password"
 )
@@ -106,11 +106,11 @@ mcp_ssh_disconnect(conn_id)
 
 ### Network Device Automation
 ```python
-# Connect to Cisco switch
+# Connect to network switch
 switch_conn = mcp_ssh_connect(
-    host="192.168.1.10",
+    host="switch.example.com",
     username="admin",
-    password="cisco123"
+    password="your_password"
 )
 
 # Check interface status
