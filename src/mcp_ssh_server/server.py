@@ -12,7 +12,7 @@ import sys
 from typing import Any, Dict, List, Optional, Sequence
 import traceback
 
-from mcp.server import Server
+from mcp.server import Server, InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolRequest,
@@ -23,6 +23,8 @@ from mcp.types import (
     TextContent,
     ImageContent,
     EmbeddedResource,
+    ServerCapabilities,
+    ToolsCapability,
 )
 
 from .ssh_manager import SSHConnectionManager, CommandResult, FileInfo
@@ -776,10 +778,22 @@ class MCPSSHServer:
     async def run(self):
         """Run the MCP server."""
         try:
+            # Create initialization options for MCP 1.10.1
+            init_options = InitializationOptions(
+                server_name="mcp-ssh-server",
+                server_version="1.0.0",
+                capabilities=ServerCapabilities(
+                    tools=ToolsCapability(
+                        listChanged=False
+                    )
+                )
+            )
+            
             async with stdio_server() as (read_stream, write_stream):
                 await self.server.run(
                     read_stream,
                     write_stream,
+                    init_options
                 )
         except KeyboardInterrupt:
             self.logger.info("Server interrupted by user")
