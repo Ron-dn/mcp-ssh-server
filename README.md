@@ -1,365 +1,211 @@
 # SSH MCP Server v2.0
 
-A production-ready SSH Model Context Protocol (MCP) server that provides secure, scalable SSH automation capabilities for AI applications.
+A working SSH Model Context Protocol (MCP) server that provides real SSH automation capabilities for AI applications.
 
 ## 🚀 Features
 
-### Core Capabilities
-- **10 SSH Tools**: Complete SSH automation toolkit
-- **Enterprise Security**: OAuth 2.1 authentication, input validation, output sanitization
-- **High Performance**: Connection pooling, multi-level caching, optimized for concurrent operations
-- **Production Ready**: Comprehensive monitoring, logging, error handling, and graceful shutdown
-
-### Security Features
-- OAuth 2.1 token introspection
-- Command whitelist with argument validation
-- Input sanitization and output filtering
-- Rate limiting and audit logging
-- HashiCorp Vault integration for SSH key management
-- Comprehensive security event logging
-
-### Performance Optimizations
-- Connection pooling with health checks
-- Multi-level caching (L1: in-memory, L2: Redis)
-- Optimized for concurrent SSH operations
-- Resource management and cleanup
-- Metrics and observability
+- **4 Real SSH Tools**: Connect, execute, list, and disconnect
+- **Dual Authentication**: Password and private key support
+- **Persistent Connections**: Maintains SSH connection state
+- **Real SSH Implementation**: Actually connects to SSH devices (not simulated)
+- **TypeScript**: Full type safety and modern implementation
+- **Tested**: Verified working with real SSH devices
 
 ## 📋 Prerequisites
 
-- Node.js 18+ and npm 9+
-- TypeScript 5.2+
-- Redis (for caching)
-- PostgreSQL (for metadata storage)
-- HashiCorp Vault (for SSH key management)
-- OAuth 2.1 provider (for authentication)
+- Node.js 18+
+- npm or yarn
+- SSH access to target devices
 
-## 🛠 Installation
+## 🛠 Quick Start
 
 1. **Clone and Install**
    ```bash
-   git clone <repository-url>
-   cd mcp-ssh-2
+   git clone https://github.com/Ron-dn/mcp-ssh-server.git
+   cd mcp-ssh-server
+   git checkout mcp-server-v2
    npm install
    ```
 
-2. **Configuration**
-   ```bash
-   cp env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. **Build**
+2. **Build**
    ```bash
    npm run build
    ```
 
-4. **Start**
-   ```bash
-   npm start
+3. **Configure Cursor IDE**
+   Add to your `~/.cursor/mcp.json`:
+   ```json
+   {
+     "mcpServers": {
+       "ssh-real": {
+         "command": "node",
+         "args": ["/path/to/your/project/dist/real-ssh-server.js"],
+         "env": {
+           "NODE_ENV": "production"
+         }
+       }
+     }
+   }
    ```
 
-## 🔧 Configuration
+4. **Restart Cursor** to load the new MCP server
 
-### Environment Variables
+## 🔑 Available SSH Tools
 
-Copy `env.example` to `.env` and configure:
+### 1. `ssh_connect` 🔌
+Connect to an SSH target with authentication.
 
-#### Required Variables
-- `OAUTH_ISSUER_URL`: OAuth 2.1 provider URL
-- `OAUTH_CLIENT_ID`: OAuth client ID
-- `OAUTH_CLIENT_SECRET`: OAuth client secret
-- `OAUTH_INTROSPECTION_ENDPOINT`: Token introspection endpoint
-- `DB_PASSWORD`: PostgreSQL password
-- `VAULT_ENDPOINT`: HashiCorp Vault URL
-- `VAULT_TOKEN`: Vault authentication token
-- `JWT_SECRET`: JWT signing secret
+**Parameters:**
+- `host` (required): SSH host IP or hostname
+- `username` (required): SSH username  
+- `port` (optional): SSH port (default: 22)
+- `password` (optional): SSH password
+- `privateKey` (optional): SSH private key content
 
-#### Optional Variables
-See `env.example` for complete list with defaults.
-
-### MCP Client Configuration
-
-Add to your MCP client configuration (e.g., `~/.cursor/mcp.json`):
-
+**Example:**
 ```json
 {
-  "mcpServers": {
-    "ssh-v2": {
-      "command": "node",
-      "args": ["/path/to/mcp-ssh-2/dist/server.js"],
-      "env": {
-        "NODE_ENV": "production"
-      }
-    }
-  }
+  "host": "192.168.1.100",
+  "username": "admin",
+  "password": "your-password"
 }
 ```
 
-## 🔑 SSH Tools
+### 2. `ssh_execute` ⚡
+Execute commands on connected SSH targets.
 
-### 1. ssh_connect
-Connect to an SSH target and add it to the pool.
+**Parameters:**
+- `targetId` (required): SSH target ID from connection
+- `command` (required): Command to execute
 
+**Returns:** stdout, stderr, exit code, execution time
+
+**Example:**
 ```json
 {
-  "name": "ssh_connect",
-  "arguments": {
-    "host": "example.com",
-    "port": 22,
-    "username": "admin",
-    "keyId": "vault-key-id"
-  }
+  "targetId": "target_123456789",
+  "command": "ls -la"
 }
 ```
 
-### 2. ssh_execute
-Execute arbitrary commands on SSH targets.
+### 3. `ssh_list_targets` 📋
+List all SSH targets and their connection status.
 
+**Parameters:** None
+
+**Returns:** All configured SSH targets with connection details
+
+### 4. `ssh_disconnect` 🔌❌
+Disconnect from an SSH target.
+
+**Parameters:**
+- `targetId` (required): SSH target ID to disconnect
+
+**Example:**
 ```json
 {
-  "name": "ssh_execute",
-  "arguments": {
-    "targetId": "target_123456789",
-    "command": "ls",
-    "args": ["-la", "/home"]
-  }
+  "targetId": "target_123456789"
 }
 ```
 
-### 3. ssh_list_targets
-List all configured SSH targets.
+## 🎯 Usage Example
 
-```json
-{
-  "name": "ssh_list_targets",
-  "arguments": {}
-}
-```
+1. **Connect to SSH device:**
+   ```
+   Use ssh_connect with your device credentials
+   ```
 
-### 4. ssh_system_status
-Get system status information.
+2. **Execute commands:**
+   ```
+   Use ssh_execute with the returned targetId
+   ```
 
-```json
-{
-  "name": "ssh_system_status",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
+3. **List connections:**
+   ```
+   Use ssh_list_targets to see all active connections
+   ```
 
-### 5. ssh_disk_usage
-Check disk usage across filesystems.
+4. **Clean disconnect:**
+   ```
+   Use ssh_disconnect when done
+   ```
 
-```json
-{
-  "name": "ssh_disk_usage",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
+## ✅ Tested Devices
 
-### 6. ssh_memory_info
-Get memory usage information.
+This server has been successfully tested with:
+- Linux servers
+- Network devices with SSH interfaces
+- Custom SSH implementations
 
-```json
-{
-  "name": "ssh_memory_info",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
+## 🔧 Development
 
-### 7. ssh_process_list
-List running processes.
-
-```json
-{
-  "name": "ssh_process_list",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
-
-### 8. ssh_network_status
-Check network connections and listening ports.
-
-```json
-{
-  "name": "ssh_network_status",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
-
-### 9. ssh_uptime
-Get system uptime and load information.
-
-```json
-{
-  "name": "ssh_uptime",
-  "arguments": {
-    "targetId": "target_123456789"
-  }
-}
-```
-
-### 10. ssh_file_list
-List files and directories.
-
-```json
-{
-  "name": "ssh_file_list",
-  "arguments": {
-    "targetId": "target_123456789",
-    "path": "/var/log"
-  }
-}
-```
-
-## 🔒 Security Model
-
-### Authentication Flow
-1. Client provides OAuth 2.1 token
-2. Server validates token via introspection
-3. Token cached for performance
-4. User context created with scopes/permissions
-
-### Authorization
-- Scope-based permissions (`ssh:read`, `ssh:execute`, etc.)
-- Command whitelist with argument validation
-- Rate limiting per user/action
-- Audit logging for all operations
-
-### Input Validation
-- Command whitelist enforcement
-- Argument sanitization
-- Length limits and pattern matching
-- Dangerous character detection
-
-### Output Sanitization
-- Credential scrubbing (passwords, tokens, keys)
-- Configurable output filters
-- Size limits to prevent memory issues
-
-## 📊 Monitoring
-
-### Health Checks
-- `/health` - Basic health status
-- `/ready` - Readiness probe for K8s
-- `/metrics` - Prometheus metrics
-
-### Metrics Collected
-- Request/response times
-- Error rates by type
-- Connection pool statistics
-- Cache hit/miss ratios
-- Security events
-
-### Logging
-- Structured JSON logging
-- Security audit trail
-- Performance metrics
-- Error tracking with context
-
-## 🚀 Deployment
-
-### Docker
+### Build from Source
 ```bash
-npm run docker:build
-npm run docker:run
+npm install
+npm run build
 ```
 
-### Kubernetes
-See `k8s/` directory for deployment manifests.
-
-### Production Considerations
-- Use environment-specific configurations
-- Enable TLS termination at load balancer
-- Configure proper log aggregation
-- Set up monitoring and alerting
-- Implement backup strategies for Redis/PostgreSQL
-
-## 🧪 Development
-
-### Scripts
-- `npm run dev` - Development with hot reload
-- `npm run build` - Production build
-- `npm run test` - Run tests
-- `npm run test:coverage` - Test coverage
-- `npm run lint` - ESLint
-- `npm run format` - Prettier
-
-### Testing
-```bash
-npm test
-npm run test:watch
-npm run test:coverage
+### File Structure
+```
+src/
+├── real-ssh-server.ts    # Main SSH MCP server (4 tools)
+├── simple-server.ts      # Demo server (10 simulated tools)
+└── server.ts            # Full production architecture
 ```
 
-## 🔧 Troubleshooting
+### Available Servers
+- **`real-ssh-server.ts`**: ✅ **Current working implementation** (4 tools)
+- **`simple-server.ts`**: Demo with simulated responses (10 tools)
+- **`server.ts`**: Future production architecture (enterprise features)
 
-### Common Issues
+## 🚨 Important Notes
 
-1. **Connection Failures**
-   - Check SSH key permissions in Vault
-   - Verify network connectivity
-   - Review connection pool settings
+- **Real SSH**: This server actually connects to SSH devices (unlike other MCP SSH servers that only store credentials)
+- **Security**: Remove sensitive data from code before committing
+- **Connections**: Server maintains persistent SSH connections for performance
+- **Error Handling**: Proper SSH error reporting and connection management
 
-2. **Authentication Errors**
-   - Validate OAuth configuration
-   - Check token introspection endpoint
-   - Verify required scopes
+## 🆚 Comparison with Other SSH MCP Servers
 
-3. **Performance Issues**
-   - Monitor connection pool metrics
-   - Check Redis cache performance
-   - Review rate limiting settings
-
-### Debug Mode
-```bash
-LOG_LEVEL=debug npm start
-```
-
-## 📚 Architecture
-
-### Components
-- **MCP Server**: Core protocol implementation
-- **Security Service**: Authentication and authorization
-- **SSH Service**: Connection management and command execution
-- **Cache Manager**: Multi-level caching strategy
-- **Connection Pool**: Optimized SSH connection reuse
-
-### Data Flow
-1. MCP client sends tool request
-2. Server validates OAuth token
-3. Security service authorizes command
-4. SSH service executes via connection pool
-5. Output sanitized and returned
-6. Audit event logged
+| Feature | This Server | Others |
+|---------|-------------|---------|
+| Real SSH Connection | ✅ Yes | ❌ No (credential storage only) |
+| Command Execution | ✅ Yes | ❌ Simulated |
+| Authentication Options | ✅ Password + Key | 🔶 Key only |
+| Connection Management | ✅ Persistent | ❌ One-time |
+| Tested with Real Devices | ✅ Yes | ❌ No |
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make changes with tests
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
 MIT License - see LICENSE file for details.
 
-## 🆘 Support
+## 🆘 Troubleshooting
 
-- Create an issue for bug reports
-- Use discussions for questions
-- Check troubleshooting guide first
+### SSH Tools Not Appearing in Cursor
+1. Ensure the server path in `mcp.json` is correct
+2. Restart Cursor completely (not just reload)
+3. Check that `dist/real-ssh-server.js` exists
+4. Verify Node.js can run the server: `node dist/real-ssh-server.js`
+
+### Connection Issues
+1. Verify SSH credentials are correct
+2. Check network connectivity to target host
+3. Ensure SSH service is running on target
+4. Check firewall settings
+
+### Command Execution Problems
+1. Some devices have proprietary command sets
+2. Try basic commands first (`ls`, `pwd`, `whoami`)
+3. Check device documentation for supported commands
 
 ---
 
-**Built with security and performance in mind for production AI workloads.** 
+**Built for real SSH automation - the only MCP SSH server that actually works with SSH devices!** 🎯 
