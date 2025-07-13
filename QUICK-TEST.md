@@ -2,7 +2,7 @@
 
 ## 🚀 Setup (Ready to Use!)
 
-The real SSH MCP server is compiled and ready to test with your device at `your.device.ip.address`.
+The real SSH MCP server is compiled and ready to test with your SSH devices.
 
 ### 1. Configure Cursor
 
@@ -13,7 +13,7 @@ Update your `~/.cursor/mcp.json` file:
   "mcpServers": {
     "ssh-real": {
       "command": "node",
-      "args": ["/Users/ronmiretsky/MyProjects/Test_UI/dist/real-ssh-server.js"],
+      "args": ["/path/to/your/project/dist/real-ssh-server.js"],
       "env": {
         "NODE_ENV": "development"
       }
@@ -44,7 +44,7 @@ Update your `~/.cursor/mcp.json` file:
     "host": "your.device.ip.address",
     "port": 22,
     "username": "your_username",
-    "password": "your_username"
+    "password": "your_password"
   }
 }
 ```
@@ -57,19 +57,19 @@ Use the target ID from the connection response:
   "tool": "ssh_execute",
   "arguments": {
     "targetId": "target_XXXXXXXXXXXXX",
-    "command": "show system"
+    "command": "your_command"
   }
 }
 ```
 
 ## 🔍 Device Analysis
 
-Based on our testing:
-- ✅ **SSH Connection**: Works perfectly
-- ✅ **Authentication**: `your_username/your_username` credentials work
-- ⚠️ **Commands**: Standard Linux and network commands return "Invalid command"
+The SSH MCP server supports various device types:
+- ✅ **SSH Connection**: Standard SSH protocol
+- ✅ **Authentication**: Password and key-based authentication
+- ⚠️ **Commands**: Device-specific command sets vary
 
-This suggests the device has a proprietary command set. You can now use the MCP tools to:
+Different devices may have proprietary command sets. You can use the MCP tools to:
 
 1. **Connect** to the device
 2. **Experiment** with different commands interactively
@@ -105,4 +105,4 @@ Try these types of commands through the MCP interface:
 
 ---
 
-**Ready to explore your device with AI-powered SSH automation! 🚀** 
+**Ready to explore your devices with AI-powered SSH automation! 🚀** 
